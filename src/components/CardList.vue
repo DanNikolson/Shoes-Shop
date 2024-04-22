@@ -5,21 +5,20 @@ defineProps({
   items: Array
 })
 
-const onClickAdd = () => {
-  alert('Добавить')
-}
+const emit = defineEmits(['addToFavourite'])
 </script>
 <template>
   <div class="grid grid-cols-4 gap-5">
     <Card
       v-for="item in items"
       :key="item.id"
+      :id="item.id"
       :title="item.title"
       :imageUrl="item.imageUrl"
       :price="item.price"
-      :isFavourite="false"
-      :onClickAdd="onClickAdd"
-      :isAdded="true"
+      :onClickFavourite="() => emit('addToFavourite', item)"
+      :isFavourite="item.isFavourite"
+      :isActive="item.isActive"
     />
   </div>
 </template>
