@@ -4,7 +4,6 @@ import axios from 'axios'
 
 import Header from './components/Header.vue'
 import CardList from './components/CardList.vue'
-import Drawer from './components/Drawer.vue'
 
 const items = ref([])
 
@@ -44,35 +43,30 @@ const fetchFavourites = async () => {
 
 const addToFavourite = async (item) => {
   try {
+    if (!item.isActive) return
     if (!item.isFavourite) {
       const obj = {
         parentId: item.id
       }
       item.isFavourite = true
-      console.log(item.isActive)
       if (item.isActive) {
         item.isActive = false
 
         const data = await axios.post(`https://a802cbe354cb10b1.mokky.dev/favourites`, obj)
+        item.favouriteId = data.data.id
         if (data.status === 201) {
           item.isActive = true
-          item.favouriteId = data.data.id
-        } else {
-          item.isActive = true
         }
-        console.log(data.status)
       }
-    } else {
-      if (item.isActive) {
-        item.isActive = false
-        item.isFavourite = false
-        const data = await axios.delete(
-          `https://a802cbe354cb10b1.mokky.dev/favourites/${item.favouriteId}`
-        )
+    } else if (item.isActive) {
+      item.isActive = false
+      item.isFavourite = false
+      const data = await axios.delete(
+        `https://a802cbe354cb10b1.mokky.dev/favourites/${item.favouriteId}`
+      )
 
-        item.favouriteId = null
-        if (data.status === 200) item.isActive = true
-      }
+      item.favouriteId = null
+      if (data.status === 200) item.isActive = true
     }
   } catch (err) {
     console.log(err)
