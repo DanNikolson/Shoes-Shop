@@ -1,16 +1,75 @@
 <script setup>
-import { onMounted, provide, reactive, ref, watch } from 'vue'
+import { computed, onMounted, provide, reactive, ref, watch } from 'vue'
 import axios from 'axios'
 
 import Header from './components/Header.vue'
 import CardList from './components/CardList.vue'
+import Drawer from './components/Drawer.vue'
 
 const items = ref([])
+const cart = ref([])
+const isCreatingOrder = ref(false)
+
+const drawerOpen = ref(false)
+
+const totalPrice = computed(() => cart.value.reduce((acc, item) => acc + item.price, 0))
+
+const vatPrice = computed(() => Math.round(totalPrice.value * 0.05))
+
+const cartButtonDisabled = computed(() =>
+  isCreatingOrder.value ? true : totalPrice.value ? false : true
+)
+
+const closeDrawer = () => {
+  drawerOpen.value = false
+}
+
+const openDrawer = () => {
+  drawerOpen.value = true
+}
 
 const filters = reactive({
   sortBy: 'title',
   searchQuery: ''
 })
+
+const addToCart = (item) => {
+  cart.value.push(item)
+  item.isAdded = true
+}
+
+const removeFromCart = (item) => {
+  cart.value.splice(cart.value.indexOf(item), 1)
+  item.isAdded = false
+}
+
+const createOrder = async () => {
+  try {
+    isCreatingOrder.value = true
+    const { data } = await axios.post('https://a802cbe354cb10b1.mokky.dev/orders', {
+      items: cart.value,
+      totalPrice: totalPrice.value
+    })
+
+    cart.value = []
+
+    return data
+  } catch (err) {
+    console.log(err)
+  } finally {
+    isCreatingOrder.value = false
+  }
+}
+
+const onClickAddPlus = (item) => {
+  if (!item.isAdded) {
+    addToCart(item)
+  } else {
+    removeFromCart(item)
+  }
+
+  console.log(cart)
+}
 
 const onChangeSelect = (event) => {
   filters.sortBy = event.target.value
@@ -105,13 +164,19 @@ onMounted(async () => {
 
 watch(filters, fetchItems)
 
-provide('addToFavourite', addToFavourite)
+provide('cart', { cart, closeDrawer, openDrawer, addToCart, removeFromCart })
 </script>
 
 <template>
-  <!-- <Drawer /> -->
+  <Drawer
+    v-if="drawerOpen"
+    :total-price="totalPrice"
+    :vatPrice="vatPrice"
+    @create-order="createOrder"
+    :buttonDisabled="cartButtonDisabled"
+  />
   <div class="bg-white w-4/5 m-auto rounded-xl shadow-xl mt-14">
-    <Header />
+    <Header :totalPrice="totalPrice" @openDrawer="openDrawer" />
 
     <div class="p-10">
       <div class="flex justify-between items-center">
@@ -134,7 +199,7 @@ provide('addToFavourite', addToFavourite)
         </div>
       </div>
       <div class="mt-10">
-        <CardList :items="items" @addToFavourite="addToFavourite" />
+        <CardList :items="items" @addToFavourite="addToFavourite" @addToCart="onClickAddPlus" />
       </div>
     </div>
   </div>
