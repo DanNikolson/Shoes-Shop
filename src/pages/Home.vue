@@ -3,7 +3,7 @@ import axios from 'axios'
 import CardList from '../components/CardList.vue'
 import { reactive, inject, watch, ref, onMounted } from 'vue'
 
-const { addToCart, removeFromCart, cart } = inject('cart')
+const { onClickAddPlus, addToFavourite, cart } = inject('cart')
 
 const items = ref([])
 
@@ -12,52 +12,12 @@ const filters = reactive({
   searchQuery: ''
 })
 
-const onClickAddPlus = (item) => {
-  if (!item.isAdded) {
-    addToCart(item)
-  } else {
-    removeFromCart(item)
-  }
-}
-
 const onChangeSelect = (event) => {
   filters.sortBy = event.target.value
 }
 
 const onChangeSearchInput = (event) => {
   filters.searchQuery = event.target.value
-}
-
-const addToFavourite = async (item) => {
-  try {
-    if (!item.isActive) return
-    if (!item.isFavourite) {
-      const obj = {
-        parentId: item.id
-      }
-      item.isFavourite = true
-      if (item.isActive) {
-        item.isActive = false
-
-        const data = await axios.post(`https://a802cbe354cb10b1.mokky.dev/favourites`, obj)
-        item.favouriteId = data.data.id
-        if (data.status === 201) {
-          item.isActive = true
-        }
-      }
-    } else if (item.isActive) {
-      item.isActive = false
-      item.isFavourite = false
-      const data = await axios.delete(
-        `https://a802cbe354cb10b1.mokky.dev/favourites/${item.favouriteId}`
-      )
-
-      item.favouriteId = null
-      if (data.status === 200) item.isActive = true
-    }
-  } catch (err) {
-    console.log(err)
-  }
 }
 
 const fetchFavourites = async () => {

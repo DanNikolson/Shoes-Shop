@@ -19,6 +19,49 @@ const cartIsEmpty = computed(() => cart.value.length === 0)
 
 const cartButtonDisabled = computed(() => isCreatingOrder.value || cartIsEmpty.value)
 
+const onClickAddPlus = (item) => {
+  if (!item.isAdded) {
+    addToCart(item)
+  } else {
+    removeFromCart(item)
+  }
+}
+
+const addToFavourite = async (item) => {
+  try {
+    if (!item.isActive) return
+    if (!item.isFavourite) {
+      const obj = {
+        parentId: item.id,
+        imageUrl: item.imageUrl,
+        title: item.title,
+        price: item.price
+      }
+      item.isFavourite = true
+      if (item.isActive) {
+        item.isActive = false
+
+        const data = await axios.post(`https://a802cbe354cb10b1.mokky.dev/favourites`, obj)
+        item.favouriteId = data.data.id
+        if (data.status === 201) {
+          item.isActive = true
+        }
+      }
+    } else if (item.isActive) {
+      item.isActive = false
+      item.isFavourite = false
+      const data = await axios.delete(
+        `https://a802cbe354cb10b1.mokky.dev/favourites/${item.favouriteId}`
+      )
+
+      item.favouriteId = null
+      if (data.status === 200) item.isActive = true
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
+
 const closeDrawer = () => {
   drawerOpen.value = false
 }
@@ -65,7 +108,15 @@ watch(
   }
 )
 
-provide('cart', { cart, closeDrawer, openDrawer, addToCart, removeFromCart })
+provide('cart', {
+  cart,
+  closeDrawer,
+  openDrawer,
+  addToCart,
+  removeFromCart,
+  onClickAddPlus,
+  addToFavourite
+})
 
 /* Корзина (END)*/
 </script>
