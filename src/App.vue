@@ -7,6 +7,7 @@ import Drawer from './components/Drawer.vue'
 
 /* Корзина (START) */
 const cart = ref([])
+const items = ref([])
 
 const drawerOpen = ref(false)
 
@@ -16,7 +17,6 @@ const vatPrice = computed(() => Math.round(totalPrice.value * 0.05))
 const onClickAddPlus = (item) => {
   if (!item.isAdded) {
     addToCart(item)
-    console.log(item)
   } else {
     removeFromCart(item)
   }
@@ -84,18 +84,40 @@ watch(
     deep: true
   }
 )
+/* Корзина (END)*/
+
+const fetchFavourites = async () => {
+  try {
+    const { data: favourites } = await axios.get(`https://a802cbe354cb10b1.mokky.dev/favourites`)
+    items.value = items.value.map((item) => {
+      const favourite = favourites.find((favourite) => favourite.parentId === item.id)
+
+      if (!favourite) {
+        return item
+      }
+
+      return {
+        ...item,
+        isFavourite: true,
+        favouriteId: favourite.id
+      }
+    })
+  } catch (err) {
+    console.log(err)
+  }
+}
 
 provide('cart', {
   cart,
+  items,
   closeDrawer,
   openDrawer,
   addToCart,
   removeFromCart,
   onClickAddPlus,
-  addToFavourite
+  addToFavourite,
+  fetchFavourites
 })
-
-/* Корзина (END)*/
 </script>
 
 <template>

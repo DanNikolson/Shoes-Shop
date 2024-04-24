@@ -9,18 +9,5 @@
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
-    <script>
-      // const resizableElement = document.getElementById('app')
-      function resizeElement() {
-        const width = window.innerWidth
-        const height = window.innerHeight
-
-        resizableElement.style.width = width / 2 + 'px'
-        resizableElement.style.height = height / 2 + 'px'
-      }
-      resizeElement()
-
-      window.addEventListener('resize', resizeElement)
-    </script>
   </body>
 </html>

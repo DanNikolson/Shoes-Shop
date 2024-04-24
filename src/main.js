@@ -7,11 +7,13 @@ import App from './App.vue'
 
 import Home from './pages/Home.vue'
 import Favourites from './pages/Favourites.vue'
+import Profile from './pages/Profile.vue'
 
 const app = createApp(App)
 const routes = [
   { path: '/', name: 'Home', component: Home },
-  { path: '/favourites', name: 'Favourites', component: Favourites }
+  { path: '/favourites', name: 'Favourites', component: Favourites },
+  { path: '/profile', name: 'Profile', component: Profile }
 ]
 const router = createRouter({
   history: createWebHistory(),

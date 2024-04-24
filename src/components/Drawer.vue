@@ -12,6 +12,7 @@ const props = defineProps({
 })
 
 const { cart } = inject('cart')
+const { closeDrawer } = inject('cart')
 
 const isCreating = ref(false)
 const orderId = ref(null)
@@ -47,12 +48,14 @@ const buttonDisabled = computed(() => isCreating.value || cartIsEmpty.value)
         title="Корзина пустая"
         description="Добавьте хотя бы одну пару кроссовок, чтобы сделать заказ."
         image-url="/package-icon.png"
+        @click="() => closeDrawer()"
       />
       <InfoBlock
         v-if="orderId"
         title="Заказ оформлен"
         :description="`Ваш заказ №${orderId} скоро будет передан курьерской доставке`"
         image-url="/order-success-icon.png"
+        @click="() => closeDrawer()"
       />
     </div>
 

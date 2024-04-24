@@ -2,11 +2,9 @@
 import axios from 'axios'
 import debounce from 'lodash.debounce'
 import CardList from '../components/CardList.vue'
-import { reactive, inject, watch, ref, onMounted } from 'vue'
+import { reactive, inject, watch, onMounted } from 'vue'
 
-const { onClickAddPlus, addToFavourite, cart } = inject('cart')
-
-const items = ref([])
+const { items, cart, addToFavourite, fetchFavourites, onClickAddPlus } = inject('cart')
 
 const filters = reactive({
   sortBy: 'title',
@@ -20,27 +18,6 @@ const onChangeSelect = (event) => {
 const onChangeSearchInput = debounce((event) => {
   filters.searchQuery = event.target.value
 }, 300)
-
-const fetchFavourites = async () => {
-  try {
-    const { data: favourites } = await axios.get(`https://a802cbe354cb10b1.mokky.dev/favourites`)
-    items.value = items.value.map((item) => {
-      const favourite = favourites.find((favourite) => favourite.parentId === item.id)
-
-      if (!favourite) {
-        return item
-      }
-
-      return {
-        ...item,
-        isFavourite: true,
-        favouriteId: favourite.id
-      }
-    })
-  } catch (err) {
-    console.log(err)
-  }
-}
 
 const fetchItems = async () => {
   try {
