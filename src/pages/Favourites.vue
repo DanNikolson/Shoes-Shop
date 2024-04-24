@@ -1,11 +1,14 @@
 <script setup>
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, inject, watch } from 'vue'
 import axios from 'axios'
 import CardList from '@/components/CardList.vue'
 
-const { onClickAddPlus, addToFavourite } = inject('cart')
+const { onClickAddPlus, addToFavourite, cart } = inject('cart')
 
-const favourites = ref([])
+let favourites = ref([])
+const cartInFavourite = JSON.parse(localStorage.getItem('cart')).filter(
+  (item) => item.isFavourite === true
+)
 
 const fetchDataAndUpdateFavourites = async () => {
   try {
@@ -26,14 +29,41 @@ const onAddToFavourite = async (item) => {
   fetchDataAndUpdateFavourites()
 }
 
+const onAddToCart = (item) => {
+  item.id = item.parentId
+  item.parentId = null
+  onClickAddPlus(item)
+}
+
+watch(
+  cart,
+  () => {
+    localStorage.setItem('cart', JSON.stringify(cart.value))
+  },
+  {
+    deep: true
+  }
+)
+console.log(favourites)
+console.log(cart)
+
 onMounted(async () => {
   await fetchDataAndUpdateFavourites()
+  if (cartInFavourite) {
+    cartInFavourite.forEach((cartItem) => {
+      const index = favourites.value.findIndex((favItem) => favItem.parentId === cartItem.id)
+      if (index !== -1) {
+        favourites.value.splice(index, 1)
+      }
+      favourites.value.push(cartItem)
+    })
+  }
 })
 </script>
 
 <template>
-  <h1>Мои закладки</h1>
-  <div class="mt-10">
-    <CardList :items="favourites" @addToFavourite="onAddToFavourite" @addToCart="onClickAddPlus" />
+  <h2 class="text-3xl font-bold mb-8">Мои закладки</h2>
+  <div class="mt-10" v-auto-animate>
+    <CardList :items="favourites" @addToFavourite="onAddToFavourite" @addToCart="onAddToCart" />
   </div>
 </template>
