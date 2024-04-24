@@ -8,7 +8,10 @@ defineProps({
 const emit = defineEmits(['addToFavourite', 'addToCart'])
 </script>
 <template>
-  <div class="grid grid-cols-4 gap-5" v-auto-animate>
+  <div
+    class="grid grid-cols-4 gap-5 max-[768px]:grid-cols-1 max-[1100px]:grid-cols-2"
+    v-auto-animate
+  >
     <Card
       v-for="item in items"
       :key="item.id"

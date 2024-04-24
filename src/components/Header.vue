@@ -6,7 +6,7 @@ const emit = defineEmits(['openDrawer'])
 </script>
 
 <template>
-  <header class="flex justify-between border-b border-slate-200 px-10 py-8">
+  <header class="flex max-[768px]:flex-col justify-between border-b border-slate-200 px-10 py-8">
     <RouterLink to="/">
       <div class="flex items-center gap-4">
         <img src="/logo.png" alt="logo" class="w-10" />
@@ -17,7 +17,7 @@ const emit = defineEmits(['openDrawer'])
       </div>
     </RouterLink>
 
-    <ul class="flex items-center gap-5">
+    <ul class="flex items-center gap-5 w-4/12 w-auto max-[768px]:flex-col max-[768px]:mt-6">
       <li
         @click="() => emit('openDrawer')"
         class="flex items-center cursor-pointer gap-3 text-gray-500 hover:text-black"
