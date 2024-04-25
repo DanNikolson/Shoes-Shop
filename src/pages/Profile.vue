@@ -1,12 +1,11 @@
 <script setup>
-import { ref, onMounted, watch, inject } from 'vue'
+import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import CardList from '@/components/CardList.vue'
 import InfoBlock from '@/components/InfoBlock.vue'
 
-const { cart, addToFavourite, fetchFavourites, onClickAddPlus } = inject('cart')
-
 const purchasedItems = ref([])
+const showInfo = ref(false)
 
 const fetchData = async () => {
   try {
@@ -17,41 +16,20 @@ const fetchData = async () => {
     console.error(err)
   }
 }
-const onAddToFavourite = async (purchasedItems) => {
-  await addToFavourite(purchasedItems)
-}
 onMounted(async () => {
-  const localCart = localStorage.getItem('cart')
-  cart.value = localCart ? JSON.parse(localCart) : []
-
   await fetchData()
-  await fetchFavourites()
-
-  purchasedItems.value = purchasedItems.value.map((item) => ({
-    ...item,
-    isAdded: cart.value.some((cartItem) => cartItem.id === item.id)
-  }))
+  setTimeout(() => {
+    showInfo.value = true
+  }, 500)
 })
-
-watch(cart, () => {
-  purchasedItems.value = purchasedItems.value.map((item) => ({
-    ...item,
-    isAdded: false
-  }))
-})
-console.log(purchasedItems)
 </script>
 
 <template>
   <h2 class="text-3xl font-bold mb-8">Мои покупки</h2>
   <div class="mt-10" v-auto-animate>
-    <CardList
-      :items="purchasedItems"
-      @addToFavourite="onAddToFavourite"
-      @addToCart="onClickAddPlus"
-    />
+    <CardList :items="purchasedItems" isFavourites />
     <InfoBlock
-      v-if="purchasedItems.length === 0"
+      v-if="purchasedItems.length === 0 && showInfo"
       title="У вас нет заказов"
       :description="`Вы нищеброд? Оформите хотя бы один заказ`"
       image-url="/emoji-2.png"
